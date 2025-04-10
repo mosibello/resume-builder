@@ -9,8 +9,8 @@
   --t-button-small-padding: 0.5rem 1.5rem;
   --t-button-border-radius: 0.25rem;
   /* Typography */
-  --t-heading-color: #291643;
-  --t-body-color: #291643;
+  --t-heading-color: #33475b;
+  --t-body-color: #33475b;
   --t-anchor-color: var(--t-primary-branding-color);
   --t-anchor-hover-color: var(--t-primary-branding-hover-color);
   --t-heading-line-height: 1.3;
@@ -167,8 +167,8 @@ html {
 
 body {
   background: #fff;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  // -webkit-font-smoothing: antialiased;
+  // -moz-osx-font-smoothing: grayscale;
   font-family: var(--t-font-family-body);
   font-weight: 400;
   color: var(--t-body-color);

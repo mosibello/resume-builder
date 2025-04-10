@@ -525,3 +525,26 @@
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
+
+.bg-theme-panel-dark {
+  background-color: rgba(234, 240, 246, var(--tw-bg-opacity));
+}
+
+.bg-theme-panel {
+  background-color: rgba(245, 248, 250, var(--tw-bg-opacity));
+}
+
+.hover-bg-theme-panel-dark {
+  &:hover {
+    background-color: rgba(234, 240, 246, var(--tw-bg-opacity));
+  }
+}
+
+.text-theme-text-light {
+  --tw-text-opacity: 1;
+  color: rgba(80, 110, 145, var(--tw-text-opacity));
+}
+
+.border-theme-border {
+  border-color: rgb(203, 214, 226);
+}
