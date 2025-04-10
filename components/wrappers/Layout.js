@@ -6,11 +6,11 @@ import { SCHEMA__DummyMenu } from "@/lib/schema";
 const Layout = async ({ children }) => {
   return (
     <>
-      <HeaderVariant01 />
+      {/* <HeaderVariant01 /> */}
       <main id="main-content" className="overflow-hidden">
         {children}
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 };
