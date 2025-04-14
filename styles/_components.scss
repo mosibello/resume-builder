@@ -299,29 +299,32 @@
     ol li {
       font-size: inherit;
     }
+    p {
+      margin-bottom: 1rem;
+    }
     ol li {
       margin-bottom: 0.5rem;
     }
-    ul {
-      list-style: none;
-      padding: 0;
-      li {
-        margin-bottom: 1rem;
-        padding-left: 1.75rem;
-        position: relative;
-        &:before {
-          content: "";
-          position: absolute;
-          top: 4px;
-          left: 0;
-          background-image: url(https://www.taylor.com/hubfs/_Taylor.com%20-%20All%20file%20connected%20%20to%20main%20site%20and%20blogs/Products%20Overview%20Pages/Omnichannel/Verson%202%20Update/icons/Check%20item%20text.svg);
-          background-size: contain;
-          background-repeat: no-repeat;
-          width: 20px;
-          height: 18px;
-        }
-      }
-    }
+    // ul {
+    //   list-style: none;
+    //   padding: 0;
+    //   li {
+    //     margin-bottom: 1rem;
+    //     padding-left: 1.75rem;
+    //     position: relative;
+    //     &:before {
+    //       content: "";
+    //       position: absolute;
+    //       top: 4px;
+    //       left: 0;
+    //       background-image: url(https://www.taylor.com/hubfs/_Taylor.com%20-%20All%20file%20connected%20%20to%20main%20site%20and%20blogs/Products%20Overview%20Pages/Omnichannel/Verson%202%20Update/icons/Check%20item%20text.svg);
+    //       background-size: contain;
+    //       background-repeat: no-repeat;
+    //       width: 20px;
+    //       height: 18px;
+    //     }
+    //   }
+    // }
     &--list-dash {
       ul {
         li {
@@ -340,6 +343,27 @@
       height: 100%;
       max-width: 100%;
       border-radius: var(--t-global-image-border-radius);
+    }
+    &--resume {
+      font-size: 14px;
+      line-height: 1.4;
+      p {
+        margin-bottom: 0.25rem;
+      }
+      ul {
+        li {
+          margin-bottom: 0.25rem;
+          &:before {
+            content: "•";
+            padding-right: 5px;
+            padding-left: 0px;
+            align-self: baseline;
+            position: relative;
+            z-index: 19;
+            color: #3e3e3e;
+          }
+        }
+      }
     }
   }
   &__testimonial-banner {
@@ -761,6 +785,40 @@
     max-width: 42rem;
     margin-left: auto;
     margin-right: auto;
+  }
+  &__icon-with-text {
+    &__row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    &__col {
+    }
+  }
+  &__resume {
+    // border: 2px solid var(--t-border-color);
+    border-radius: 8px;
+    padding: 60px;
+    box-shadow: 0 0 2px 0 rgba(83, 83, 83, 0.5);
+    margin-bottom: 40px;
+    position: relative;
+    background-color: var(--t-cp-base-white);
+    page-break-after: always;
+    height: 1330px;
+    width: 100%;
+    &-comp {
+      &__experience {
+        margin-bottom: 1rem;
+        border-bottom: 1px dashed #ccc;
+        padding-bottom: 1rem;
+
+        &:last-child {
+          margin-bottom: 0;
+          border-bottom: none;
+          padding-bottom: 0;
+        }
+      }
+    }
   }
   // New component styles here
 }
