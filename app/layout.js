@@ -6,6 +6,7 @@ import NextTopLoader from "nextjs-toploader";
 import { GET__getUser } from "@/services/queries-ssr";
 import { AppWrapper } from "@/context/AppWrapper";
 import { Toaster } from "@/components/ui/shadcn/sonner";
+import { TooltipProvider } from "@/components/ui/shadcn/tooltip";
 
 export const pacaembu = localFont({
   src: "../public/fonts/Pacaembu.woff2",
@@ -13,10 +14,9 @@ export const pacaembu = localFont({
 });
 
 export const metadata = {
-  title:
-    "Free Stock Photos, Royalty Free Stock Images & Copyright Free Pictures | Mujmua",
+  title: "Online Resume Builder | Free Resume Maker",
   description:
-    "Free stock photos & videos you can use everywhere. Browse millions of high-quality royalty free stock images & copyright free pictures. No attribution required.",
+    "✓ Create a professional resume that results in interview callbacks with Enhancv's Resume Builder ✓ Premium & free templates ✓ Fill in your details & apply to jobs.",
 };
 
 export default async function RootLayout({ children }) {
@@ -30,9 +30,11 @@ export default async function RootLayout({ children }) {
           height={2}
           zIndex={999999}
         />
-        <AppWrapper user={user}>
-          <Layout>{children}</Layout>
-        </AppWrapper>
+        <TooltipProvider>
+          <AppWrapper user={user}>
+            <Layout>{children}</Layout>
+          </AppWrapper>
+        </TooltipProvider>
         <Toaster position="top-center" />
       </body>
     </html>

@@ -432,6 +432,9 @@
 
   // ## Backgrounds
   &__background {
+    &-white {
+      background-color: var(--t-cp-base-white) !important;
+    }
     &-light {
       background-color: var(--t-light-background-color) !important;
     }

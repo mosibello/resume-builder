@@ -9,15 +9,13 @@ import {
 } from "@/components/ui/FormElements";
 
 export const BasicDetails = ({
-  firstName = ``,
-  lastName = ``,
-  phone = ``,
+  firstName,
+  lastName,
+  phone,
   emailAddress,
   websiteUrl,
   location,
 }) => {
-  console.log(firstName);
-
   return (
     <div className="c__resume__block c__resume__block--personal-information">
       {(firstName || lastName) && (

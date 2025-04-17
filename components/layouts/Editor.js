@@ -14,6 +14,7 @@ import {
   Input,
   TextareaAuto,
   Select,
+  RichtextEditor,
 } from "@/components/ui/FormElements";
 
 const addNamesToFields = (fields) =>
@@ -23,18 +24,18 @@ const addNamesToFields = (fields) =>
 
 const Editor = () => {
   const [resumeData, setResumeData] = useState({
-    name: ``,
-    id: ``,
+    name: undefined,
+    id: undefined,
     styles: {
-      themeColor: ``,
+      themeColor: undefined,
     },
     content: {
-      first_name: { value: undefined },
-      last_name: { value: undefined },
-      phone: { value: undefined },
-      email_address: { value: undefined },
-      website_url: { value: undefined },
-      location: { value: undefined },
+      firstName: { value: `John` },
+      lastName: { value: `Doe` },
+      phone: { value: `+1 630 936 8291` },
+      emailAddress: { value: `johndoe@gmail.com` },
+      websiteUrl: { value: `https://example.com` },
+      location: { value: `Chicago, IL` },
     },
   });
 
@@ -64,7 +65,7 @@ const Editor = () => {
   }, [resumeData]);
 
   return (
-    <>
+    <div className="h-screen overflow-hidden">
       <header style={{ position: "relative", zIndex: "99999999999999" }}>
         <EditorTopbar />
         <EditorInfobar />
@@ -74,14 +75,35 @@ const Editor = () => {
           <div className="theme-column text-theme-text w-full max-w-sm bg-white border-r border-theme-border">
             <div className="theme-box flex items-center justify-between bg-white py-4 px-4">
               <div className="theme-box">
-                <h2 className="text-xl font-medium">Edit Resume</h2>
+                {/* <h2 className="text-xl font-medium">Edit Resume</h2> */}
+
+                <div className="theme-box">
+                  <div className="text-sm breadcrumbs">
+                    <ul>
+                      <li className="cursor-pointer hover:theme-primary">
+                        <span className="text-[var(--t-primary-branding-color)] hover:text-[--t-primary-branding-hover-color]">
+                          Home
+                        </span>
+                      </li>
+                      <li>
+                        <span
+                          className="text-gray-400 truncate cursor-not-allowed"
+                          style={{ width: `200px` }}
+                        >
+                          Basic Information
+                        </span>
+                      </li>
+                    </ul>
+                  </div>
+                  <h2 className="text-xl font-medium">Basic Information</h2>
+                </div>
               </div>
             </div>
             <div className="theme-box text-theme-text-light border-t border-theme-border ">
               <div className="theme-row bg-theme-panel-dark flex flex-items-center">
-                <div className="theme-column w-full false text-center">
+                <div className="theme-column w-full false">
                   <div className="theme-box font-medium px-4 py-4 border-theme-border border-b cursor-pointer">
-                    Contents
+                    Content
                   </div>
                 </div>
               </div>
@@ -219,14 +241,15 @@ const Editor = () => {
               </div>
               <div className="c__editor__sidebar__editor-form px-[1rem] py-[1.25rem]">
                 <BasicDetailsSettings
-                  firstName={resumeData.content.first_name}
-                  lastName={resumeData.content.last_name}
+                  firstName={resumeData.content.firstName}
+                  lastName={resumeData.content.lastName}
                   phone={resumeData.content.phone}
-                  emailAddress={resumeData.content.email_address}
-                  websiteUrl={resumeData.content.website_url}
+                  emailAddress={resumeData.content.emailAddress}
+                  websiteUrl={resumeData.content.websiteUrl}
                   location={resumeData.content.location}
                   handleFieldChange={handleFieldChange}
                 />
+                <RichtextEditor />
               </div>
             </div>
           </div>
@@ -235,14 +258,14 @@ const Editor = () => {
               style={{ height: `100vh` }}
               className="theme-column w-full overflow-y-scroll"
             >
-              <div className="p-[4rem]">
+              <div className="p-[4rem] pb-[20rem]">
                 <ResumeViewport data={resumeData} />
               </div>
             </div>
           </div>
         </div>
       </main>
-    </>
+    </div>
   );
 };
 
