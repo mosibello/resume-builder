@@ -6,6 +6,8 @@ import Image from "next/image";
 import Heading from "@/components/ui/Heading";
 import Paragraph from "@/components/ui/Paragraph";
 import EditorTopbar from "@/components/partials/EditorTopbar";
+import ResumeViewport from "@/components/partials/ResumeViewport";
+import { BasicDetailsSettings } from "@/components/layouts/resume/panels/BasicDetails";
 import EditorInfobar from "@/components/partials/EditorInfobar";
 import {
   Label,
@@ -14,23 +16,52 @@ import {
   Select,
 } from "@/components/ui/FormElements";
 
+const addNamesToFields = (fields) =>
+  Object.fromEntries(
+    Object.entries(fields).map(([key, val]) => [key, { ...val, name: key }])
+  );
+
 const Editor = () => {
   const [resumeData, setResumeData] = useState({
-    first_name: "",
-    last_name: "",
-    phone: "",
-    email_address: "",
-    website_url: "",
-    location: "",
+    name: ``,
+    id: ``,
+    styles: {
+      themeColor: ``,
+    },
+    content: {
+      first_name: { value: undefined },
+      last_name: { value: undefined },
+      phone: { value: undefined },
+      email_address: { value: undefined },
+      website_url: { value: undefined },
+      location: { value: undefined },
+    },
   });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const handleFieldChange = (fieldName) => (e) => {
+    const value = e.target.value;
     setResumeData((prev) => ({
       ...prev,
-      [name]: value,
+      content: {
+        ...prev.content,
+        [fieldName]: {
+          ...prev.content[fieldName],
+          value,
+        },
+      },
     }));
   };
+
+  useEffect(() => {
+    setResumeData((prev) => ({
+      ...prev,
+      content: addNamesToFields(prev.content),
+    }));
+  }, []);
+
+  useEffect(() => {
+    console.log(resumeData.content);
+  }, [resumeData]);
 
   return (
     <>
@@ -187,29 +218,25 @@ const Editor = () => {
                 </div>
               </div>
               <div className="c__editor__sidebar__editor-form px-[1rem] py-[1.25rem]">
-                <div className="c__form">
-                  <div className="c__form__fields-wrapper">
-                    <div className="c__form__fieldset c__form__fieldset--100">
-                      <Label>First Name</Label>
-                      <Input
-                        name="first_name"
-                        onChange={handleChange}
-                        value={resumeData.first_name}
-                        placeholder="First Name"
-                        type="text"
-                      />
-                    </div>
-                    <div className="c__form__fieldset c__form__fieldset--100">
-                      <Label>Last Name</Label>
-                      <TextareaAuto
-                        name="last_name"
-                        onChange={handleChange}
-                        value={resumeData.last_name}
-                        placeholder="Last Name"
-                      />
-                    </div>
-                  </div>
-                </div>
+                <BasicDetailsSettings
+                  firstName={resumeData.content.first_name}
+                  lastName={resumeData.content.last_name}
+                  phone={resumeData.content.phone}
+                  emailAddress={resumeData.content.email_address}
+                  websiteUrl={resumeData.content.website_url}
+                  location={resumeData.content.location}
+                  handleFieldChange={handleFieldChange}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="transition-all duration-200 overflow-hidden w-full">
+            <div
+              style={{ height: `100vh` }}
+              className="theme-column w-full overflow-y-scroll"
+            >
+              <div className="p-[4rem]">
+                <ResumeViewport data={resumeData} />
               </div>
             </div>
           </div>
