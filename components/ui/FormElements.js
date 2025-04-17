@@ -1,25 +1,24 @@
 "use client";
 import React from "react";
 import Select from "react-select";
+import TextareaAutosize from "react-textarea-autosize";
 
 export const Label = ({ name, children }) => {
   return (
-    <label
-      className="c__form__label text-sm mb-2 flex font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-      htmlFor={name}
-    >
-      {children}
-    </label>
+    <div className="mb-2">
+      <label className="font-small block" htmlFor={name}>
+        {children}
+      </label>
+    </div>
   );
 };
 
 export const Input = ({
   name,
   autoComplete,
-  type,
+  type = `text`,
   placeholder,
   onChange,
-  defaultValue,
   required,
   pattern,
   errors,
@@ -27,13 +26,14 @@ export const Input = ({
   value,
   className,
 }) => {
+  const classNames = ``;
   return (
     <input
       name={name}
       id={name}
       aria-labelledby={name}
       autoComplete={autoComplete}
-      className={`c__form__input ${className ? className : ``} ${
+      className={`c__form__input ${classNames} ${className ? className : ``} ${
         errors?.name ? `c__form__input--error` : ``
       }`}
       type={type}
@@ -42,7 +42,6 @@ export const Input = ({
       readOnly={readOnly}
       onChange={onChange}
       value={value}
-      defaultValue={defaultValue ? defaultValue : null}
       {...(typeof register === "function"
         ? register(name, {
             required: required?.message ?? required,
@@ -56,7 +55,7 @@ export const Input = ({
 export const Textarea = ({
   name,
   autoComplete,
-  type,
+  type = `textarea`,
   placeholder,
   required,
   pattern,
@@ -89,6 +88,47 @@ export const Textarea = ({
           })
         : {})}
     ></textarea>
+  );
+};
+
+export const TextareaAuto = ({
+  name,
+  autoComplete,
+  type = `textarea`,
+  placeholder,
+  required,
+  pattern,
+  errors,
+  readOnly,
+  onChange,
+  rows,
+  value,
+  className,
+}) => {
+  return (
+    <TextareaAutosize
+      name={name}
+      id={name}
+      aria-labelledby={name}
+      className={`c__form__input ${className ? className : ``} ${
+        errors?.name ? `c__form__input--error` : ``
+      }`}
+      type={type}
+      placeholder={placeholder}
+      autoComplete={autoComplete}
+      readOnly={readOnly}
+      onChange={onChange}
+      rows={rows}
+      maxRows={6}
+      style={{ resize: "none" }}
+      value={value}
+      {...(typeof register === "function"
+        ? register(name, {
+            required: required?.message ?? required,
+            pattern: pattern ?? undefined,
+          })
+        : {})}
+    ></TextareaAutosize>
   );
 };
 
