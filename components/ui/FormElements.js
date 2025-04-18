@@ -2,22 +2,34 @@
 import React, { useCallback, useState } from "react";
 import Select from "react-select";
 import TextareaAutosize from "react-textarea-autosize";
-
-import { useEditor, EditorContent } from "@tiptap/react";
-import Link from "@tiptap/extension-link";
-import StarterKit from "@tiptap/starter-kit";
-
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/shadcn/dialog";
-
-import { Content } from "@tiptap/react";
+import { useAppContext } from "@/context/AppWrapper";
+import { format } from "date-fns";
 import { MinimalTiptapEditor } from "@/components/ui//minimal-tiptap";
+import { Button } from "@/components/ui/shadcn/button";
+import { Calendar } from "@/components/ui/shadcn/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/shadcn/popover";
+import { cn } from "@/lib/utils";
+import { CalendarIcon } from "lucide-react";
+import {
+  DndContext,
+  DragOverlay,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 export const Label = ({ name, children }) => {
   return (
@@ -173,140 +185,11 @@ export default ({
   />
 );
 
-const RichtextMenubar = ({ editor }) => {
-  if (!editor) {
-    return null;
-  }
-
-  // const openModal = useCallback(() => {
-  //   console.log(editor.chain().focus());
-  //   setUrl(editor.getAttributes("link").href);
-  //   setIsOpen(true);
-  // }, [editor]);
-
-  // const closeModal = useCallback(() => {
-  //   setIsOpen(false);
-  //   setUrl("");
-  // }, []);
+export const RichtextEditor = ({ value, setValue }) => {
+  // const [value, setValue] = useState("");
+  // console.log(value);
 
   return (
-    <>
-      <button
-        onClick={() => editor.chain().focus().toggleBold().run()}
-        className={editor.isActive("bold") ? "is-active" : ""}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          width="24"
-          height="24"
-        >
-          <path fill="none" d="M0 0h24v24H0z" />
-          <path d="M8 11h4.5a2.5 2.5 0 1 0 0-5H8v5zm10 4.5a4.5 4.5 0 0 1-4.5 4.5H6V4h6.5a4.5 4.5 0 0 1 3.256 7.606A4.498 4.498 0 0 1 18 15.5zM8 13v5h5.5a2.5 2.5 0 1 0 0-5H8z" />
-        </svg>
-      </button>
-      <button
-        onClick={() => editor.chain().focus().toggleItalic().run()}
-        className={editor.isActive("italic") ? "is-active" : ""}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          width="24"
-          height="24"
-        >
-          <path fill="none" d="M0 0h24v24H0z" />
-          <path d="M15 20H7v-2h2.927l2.116-12H9V4h8v2h-2.927l-2.116 12H15z" />
-        </svg>
-      </button>
-      <button
-        onClick={() => editor.chain().focus().setParagraph().run()}
-        className={editor.isActive("paragraph") ? "is-active" : ""}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          width="24"
-          height="24"
-        >
-          <path fill="none" d="M0 0h24v24H0z" />
-          <path d="M12 6v15h-2v-5a6 6 0 1 1 0-12h10v2h-3v15h-2V6h-3zm-2 0a4 4 0 1 0 0 8V6z" />
-        </svg>
-      </button>
-
-      {/* 
-      <button
-        onClick={() => editor.chain().focus().setParagraph().run()}
-        className={editor.isActive("link") ? "is-active" : ""}
-      >
-<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-  <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
-</svg>
-
-
-      </button> */}
-
-      <button
-        onClick={() => editor.chain().focus().toggleBulletList().run()}
-        className={editor.isActive("bulletList") ? "is-active" : ""}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          width="24"
-          height="24"
-        >
-          <path fill="none" d="M0 0h24v24H0z" />
-          <path d="M8 4h13v2H8V4zM4.5 6.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm0 7a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm0 6.9a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zM8 11h13v2H8v-2zm0 7h13v2H8v-2z" />
-        </svg>
-      </button>
-
-      <Dialog>
-        <DialogTrigger>Open</DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit link</DialogTitle>
-            <DialogDescription></DialogDescription>
-          </DialogHeader>
-          <div className="c__form mt-[0.5rem]">
-            <Input value="" />
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
-  );
-};
-
-export const RichtextEditor = (props) => {
-  // const editor = useEditor({
-  //   extensions: [
-  //     StarterKit,
-  //     Link.configure({
-  //       openOnClick: false,
-  //     }),
-  //   ],
-  //   content: "<p>Hello World! 🌎️</p>",
-  //   editorProps: {
-  //     attributes: {
-  //       class:
-  //         "prose p-4 focus:outline-none CUSTOM__rich-text-editor__content-editable",
-  //     },
-  //   },
-  // });
-
-  const [value, setValue] = useState("");
-  console.log(value);
-
-  return (
-    // <div className="CUSTOM__rich-text-editor bg-white bg-clip-padding border border-solid border-gray-300 rounded">
-    //   <div className="CUSTOM__rich-text-editor__header bg-theme-panel-dark rounded-tl rounded-tr text-sm px-4 py-2 border-b border-solid border-gray-300">
-    //     <RichtextMenubar name={props.name} editor={editor} />
-    //   </div>
-    //   <div className="CUSTOM__rich-text-editor__body bg-white">
-    //     <EditorContent editor={editor} />
-    //   </div>
-    // </div>
-
     <MinimalTiptapEditor
       value={value}
       onChange={setValue}
@@ -314,9 +197,248 @@ export const RichtextEditor = (props) => {
       editorContentClassName="p-5 h-full"
       output="html"
       placeholder="Add content here..."
-      autofocus={true}
+      autofocus={false}
       editable={true}
       editorClassName="focus:outline-hidden min-h-[10rem]"
     />
+  );
+};
+
+export const DatePicker = ({ date, setDate }) => {
+  // const [date, setDate] = React.useState();
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant={"outline"}
+          className={cn(
+            "w-[240px] justify-start text-left font-normal",
+            !date && "text-muted-foreground"
+          )}
+        >
+          <CalendarIcon className="mr-2 h-4 w-4" />
+          {date ? format(date, "PPP") : <span>Pick a date</span>}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="start">
+        <Calendar mode="single" selected={date} onSelect={setDate} autoFocus />
+      </PopoverContent>
+    </Popover>
+  );
+};
+
+export const RepeaterField = (props) => {
+  const { repeater, repeaterEditingMeta, sortingLabel, id } = props;
+  const [activeID, setActiveID] = useState(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+  return (
+    <>
+      <div className={props.wrapperClassName}>
+        {props.label && (
+          <div className="mb-2 flex items-center justify-between">
+            <label
+              className="text-theme-text-light font-small block"
+              htmlFor={props.name}
+            >
+              {props.label}
+            </label>
+            <div>
+              <span
+                onClick={props.handleAdd}
+                className="text-theme-notify block text-xs cursor-pointer hover:underline"
+              >
+                + Add
+              </span>
+            </div>
+          </div>
+        )}
+
+        {repeater && repeater.length > 0 && (
+          <div className="mt-2">
+            <DndContext
+              id={id}
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={repeater}
+                strategy={verticalListSortingStrategy}
+              >
+                {repeater.map((elem, index) => {
+                  return (
+                    <RepeaterListItem
+                      key={index}
+                      elem={elem}
+                      index={index}
+                      sortingLabel={sortingLabel}
+                      repeaterName={props.name}
+                      repeaterEditingMeta={repeaterEditingMeta}
+                      handleEdit={props.handleEdit}
+                      handleClone={props.handleClone}
+                      handleDelete={props.handleDelete}
+                      id={elem.id}
+                    />
+                  );
+                })}
+              </SortableContext>
+              <DragOverlay>
+                {activeID ? (
+                  <RepeaterListItem
+                    elem={repeater.find((x) => x.id === activeID)}
+                    handleEdit={props.handleEdit}
+                    handleClone={props.handleClone}
+                    handleDelete={props.handleDelete}
+                  />
+                ) : null}
+              </DragOverlay>
+            </DndContext>
+          </div>
+        )}
+
+        {props.children}
+      </div>
+    </>
+  );
+  function handleDragEnd(event) {
+    const { active, over } = event;
+    if (active?.id !== over?.id) {
+      return props.handleMove(active, over);
+    }
+    setActiveID(null);
+  }
+
+  function handleDragStart(event) {
+    props.handleFinishEdit();
+    setActiveID(event.active.id);
+  }
+};
+
+export const RepeaterListItem = ({
+  elem,
+  index,
+  repeaterName,
+  repeaterEditingMeta,
+  handleEdit,
+  handleClone,
+  handleDelete,
+  sortingLabel,
+  id,
+}) => {
+  const { handlers } = useAppContext();
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      // data-attribute-id={id}
+      ref={setNodeRef}
+      style={style}
+      key={index}
+      className={`border flex items-center justify-between border-theme-border bg-white px-3 pl-4 py-2 ${
+        index > 0 && `border-t-0`
+      }`}
+    >
+      <span className="text-theme-text-light text-sm block truncate pr-5 flex items-center">
+        <button type="button" {...listeners} {...attributes} className="pr-3">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            style={{ width: "5px", height: "24px" }}
+          >
+            <path
+              fill="#516f90"
+              d="M0 0h2v2H0V0zm0 8h2v2H0V8zm0 8h2v2H0v-2zM0 4h2v2H0V4zm0 8h2v2H0v-2zm0 8h2v2H0v-2zM3 0h2v2H3V0zm0 8h2v2H3V8zm0 8h2v2H3v-2zM3 4h2v2H3V4zm0 8h2v2H3v-2zm0 8h2v2H3v-2z"
+            />
+          </svg>
+        </button>
+        <span className="truncate pr-3">
+          {elem ? elem[sortingLabel] : `...`}
+        </span>
+      </span>
+      <div className="flex theme-row text-theme-notify -mx-2 items-center">
+        {repeaterEditingMeta && repeaterEditingMeta.index === index && (
+          <div className="theme-column px-2">
+            <div className="badge bg-theme-primary border-none flex">
+              <span style={{ fontSize: "0.6rem" }}>Editing</span>
+            </div>
+          </div>
+        )}
+        <div
+          className="theme-column px-2 cursor-pointer"
+          onClick={() => {
+            handleEdit(index),
+              handlers.handleRepeaterMeta({
+                repeaterName,
+                editingIndex: index,
+              });
+          }}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+            />
+          </svg>
+        </div>
+        <div
+          className="theme-column px-2 cursor-pointer"
+          onClick={() => handleClone(index)}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+            />
+          </svg>
+        </div>
+        <div
+          className="theme-column px-2 cursor-pointer"
+          onClick={() => handleDelete(index)}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+            />
+          </svg>
+        </div>
+      </div>
+    </div>
   );
 };

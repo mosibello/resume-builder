@@ -14,8 +14,8 @@ import {
   Input,
   TextareaAuto,
   Select,
-  RichtextEditor,
 } from "@/components/ui/FormElements";
+import { ExperienceSettings } from "@/components/layouts/resume/panels/Experience";
 
 const addNamesToFields = (fields) =>
   Object.fromEntries(
@@ -36,6 +36,30 @@ const Editor = () => {
       emailAddress: { value: `johndoe@gmail.com` },
       websiteUrl: { value: `https://example.com` },
       location: { value: `Chicago, IL` },
+      experience: {
+        heading: { value: `Experience` },
+        repeater: {
+          sortingLabel: "jobTitle",
+          content: [
+            {
+              id: 1,
+              jobTitle: `Senior Software Engineer, Frontend`,
+              organization: `Taylor Corporation`,
+              startDate: `04/2023`,
+              endDate: `Present`,
+              description: `<p>Taylor Corporation is a graphical communications company with more than 10,000 employees headquartered in North Mankato, Minnesota</p>`,
+            },
+            {
+              id: 2,
+              jobTitle: `Senior Software Engineer, Frontend`,
+              organization: `Taylor Corporation`,
+              startDate: `04/2023`,
+              endDate: `Present`,
+              description: `<p>Taylor Corporation is a graphical communications company with more than 10,000 employees headquartered in North Mankato, Minnesota</p>`,
+            },
+          ],
+        },
+      },
     },
   });
 
@@ -51,6 +75,96 @@ const Editor = () => {
         },
       },
     }));
+  };
+
+  const repeaterHandlers = {
+    add: (panelKey, newItem) => {
+      setResumeData((prev) => ({
+        ...prev,
+        content: {
+          ...prev.content,
+          [panelKey]: {
+            ...prev.content[panelKey],
+            repeater: {
+              ...prev.content[panelKey].repeater,
+              content: [...prev.content[panelKey].repeater.content, newItem],
+            },
+          },
+        },
+      }));
+    },
+    delete: (panelKey, indexToDelete) => {
+      setResumeData((prev) => {
+        const items = prev.content[panelKey].repeater.content;
+        const newItems = items.filter((_, idx) => idx !== indexToDelete);
+        return {
+          ...prev,
+          content: {
+            ...prev.content,
+            [panelKey]: {
+              ...prev.content[panelKey],
+              repeater: {
+                ...prev.content[panelKey].repeater,
+                content: newItems,
+              },
+            },
+          },
+        };
+      });
+    },
+    clone: (panelKey, indexToClone) => {
+      setResumeData((prev) => {
+        const items = prev.content[panelKey].repeater.content;
+        const itemToClone = items[indexToClone];
+        const clonedItem = structuredClone(itemToClone);
+        const newItems = [
+          ...items.slice(0, indexToClone + 1),
+          clonedItem,
+          ...items.slice(indexToClone + 1),
+        ];
+        return {
+          ...prev,
+          content: {
+            ...prev.content,
+            [panelKey]: {
+              ...prev.content[panelKey],
+              repeater: {
+                ...prev.content[panelKey].repeater,
+                content: newItems,
+              },
+            },
+          },
+        };
+      });
+    },
+  };
+
+  const updateNestedField = (obj, path, value) => {
+    const [key, ...rest] = path;
+
+    if (rest.length === 0) {
+      return {
+        ...obj,
+        [key]: value,
+      };
+    }
+
+    return {
+      ...obj,
+      [key]: updateNestedField(obj[key], rest, value),
+    };
+  };
+
+  const handleRepeaterFieldChange = (pathArray, value) => {
+    setResumeData((prev) => {
+      const updatedContent = updateNestedField(
+        prev,
+        ["content", ...pathArray],
+        value
+      );
+      return updatedContent;
+    });
+    console.log(`resumeData:`, resumeData);
   };
 
   useEffect(() => {
@@ -112,7 +226,7 @@ const Editor = () => {
               style={{ height: "calc(100vh - 57px - 60px - 125px)" }}
               className="theme-box bg-theme-panel overflow-y-auto pb-24"
             >
-              <div className="c__editor__sidebar__primary-navigation hidden">
+              <div className="c__editor__sidebar__primary-navigation">
                 <div className="px-[1rem] py-[1.25rem] border-b border-theme-border text-theme-text-light cursor-pointer hover-bg-theme-panel-dark">
                   <div className="flex items-center justify-between -mx-1">
                     <div className="px-1">
@@ -141,84 +255,7 @@ const Editor = () => {
                 <div className="px-[1rem] py-[1.25rem] border-b border-theme-border text-theme-text-light cursor-pointer hover-bg-theme-panel-dark">
                   <div className="flex items-center justify-between -mx-1">
                     <div className="px-1">
-                      <h2 className="font-medium u__p text-inherit">
-                        Experience
-                      </h2>
-                    </div>
-                    <div className="px-1">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={2}
-                        stroke="currentColor"
-                        className="size-4"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="m8.25 4.5 7.5 7.5-7.5 7.5"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-                <div className="px-[1rem] py-[1.25rem] border-b border-theme-border text-theme-text-light cursor-pointer hover-bg-theme-panel-dark">
-                  <div className="flex items-center justify-between -mx-1">
-                    <div className="px-1">
-                      <h2 className="font-medium u__p text-inherit">
-                        Education
-                      </h2>
-                    </div>
-                    <div className="px-1">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={2}
-                        stroke="currentColor"
-                        className="size-4"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="m8.25 4.5 7.5 7.5-7.5 7.5"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-                <div className="px-[1rem] py-[1.25rem] border-b border-theme-border text-theme-text-light cursor-pointer hover-bg-theme-panel-dark">
-                  <div className="flex items-center justify-between -mx-1">
-                    <div className="px-1">
-                      <h2 className="font-medium u__p text-inherit">
-                        Technologies
-                      </h2>
-                    </div>
-                    <div className="px-1">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={2}
-                        stroke="currentColor"
-                        className="size-4"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="m8.25 4.5 7.5 7.5-7.5 7.5"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-                <div className="px-[1rem] py-[1.25rem] border-b border-theme-border text-theme-text-light cursor-pointer hover-bg-theme-panel-dark">
-                  <div className="flex items-center justify-between -mx-1">
-                    <div className="px-1">
-                      <h2 className="font-medium u__p text-inherit">
-                        Projects
-                      </h2>
+                      <h2 className="font-medium u__p text-inherit">Canvas</h2>
                     </div>
                     <div className="px-1">
                       <svg
@@ -249,7 +286,12 @@ const Editor = () => {
                   location={resumeData.content.location}
                   handleFieldChange={handleFieldChange}
                 />
-                <RichtextEditor />
+                <ExperienceSettings
+                  settings={resumeData.content.experience}
+                  repeaterHandlers={repeaterHandlers}
+                  panelKey="experience"
+                  handleRepeaterFieldChange={handleRepeaterFieldChange}
+                />
               </div>
             </div>
           </div>
