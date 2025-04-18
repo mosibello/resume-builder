@@ -820,5 +820,10 @@
       }
     }
   }
+  &__richtext-editor {
+    &:focus-within {
+      box-shadow: var(--t-form-input-focus-box-shadow);
+    }
+  }
   // New component styles here
 }

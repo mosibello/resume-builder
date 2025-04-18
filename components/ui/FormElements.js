@@ -295,6 +295,7 @@ export const RichtextEditor = (props) => {
   // });
 
   const [value, setValue] = useState("");
+  console.log(value);
 
   return (
     // <div className="CUSTOM__rich-text-editor bg-white bg-clip-padding border border-solid border-gray-300 rounded">
@@ -312,10 +313,10 @@ export const RichtextEditor = (props) => {
       className="w-full u__background-white"
       editorContentClassName="p-5 h-full"
       output="html"
-      placeholder="Enter your description..."
+      placeholder="Add content here..."
       autofocus={true}
       editable={true}
-      editorClassName="focus:outline-hidden"
+      editorClassName="focus:outline-hidden min-h-[10rem]"
     />
   );
 };
