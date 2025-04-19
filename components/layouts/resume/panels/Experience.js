@@ -179,22 +179,40 @@ export const ExperienceSettings = ({
                     }`,
                   }}
                 >
-                  <div className="c__form">
-                    <div className="c__form__fields-wrapper">
-                      <div className="c__form__fieldset c__form__fieldset--100">
-                        <Label>Job Title</Label>
-                        <TextareaAuto
-                          name={`jobTitle`}
-                          onChange={handleFieldChange([
-                            "experience",
-                            "repeater",
-                            "content",
-                            repeaterEditingMeta.index,
-                            "jobTitle",
-                          ])}
-                          value={elem.jobTitle}
-                          placeholder="Job Title"
-                        />
+                  <div className="mt-[2rem]">
+                    <div className="c__form">
+                      <div className="c__form__fields-wrapper">
+                        <div className="c__form__fieldset c__form__fieldset--100">
+                          <Label>Job Title</Label>
+                          <TextareaAuto
+                            name={`jobTitle`}
+                            onChange={handleFieldChange([
+                              "experience",
+                              "repeater",
+                              "content",
+                              repeaterEditingMeta.index,
+                              "jobTitle",
+                            ])}
+                            value={elem.jobTitle}
+                            placeholder="Job Title"
+                          />
+                        </div>
+
+                        <div className="c__form__fieldset c__form__fieldset--100">
+                          <Label>Organization</Label>
+                          <TextareaAuto
+                            name={`organization`}
+                            onChange={handleFieldChange([
+                              "experience",
+                              "repeater",
+                              "content",
+                              repeaterEditingMeta.index,
+                              "organization",
+                            ])}
+                            value={elem.organization}
+                            placeholder="Organization"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>

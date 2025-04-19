@@ -142,17 +142,31 @@ const Editor = () => {
   const updateNestedField = (obj, path, value) => {
     const [key, ...rest] = path;
 
+    const isIndex = typeof key === "number";
+
     if (rest.length === 0) {
-      return {
-        ...obj,
-        [key]: value,
-      };
+      if (isIndex) {
+        const newArray = [...obj];
+        newArray[key] = value;
+        return newArray;
+      } else {
+        return {
+          ...obj,
+          [key]: value,
+        };
+      }
     }
 
-    return {
-      ...obj,
-      [key]: updateNestedField(obj[key], rest, value),
-    };
+    if (isIndex) {
+      const newArray = [...obj];
+      newArray[key] = updateNestedField(obj[key], rest, value);
+      return newArray;
+    } else {
+      return {
+        ...obj,
+        [key]: updateNestedField(obj[key], rest, value),
+      };
+    }
   };
 
   const handleRepeaterFieldChange = (pathArray, value) => {
@@ -164,7 +178,6 @@ const Editor = () => {
       );
       return updatedContent;
     });
-    console.log(`resumeData:`, resumeData);
   };
 
   useEffect(() => {
@@ -276,7 +289,7 @@ const Editor = () => {
                   </div>
                 </div>
               </div>
-              <div className="c__editor__sidebar__editor-form px-[1rem] py-[1.25rem]">
+              <div className="c__editor__sidebar__editor-form px-[1rem] py-[1.25rem] bg-theme-panel-dark border-theme-border border-b">
                 <BasicDetailsSettings
                   firstName={resumeData.content.firstName}
                   lastName={resumeData.content.lastName}

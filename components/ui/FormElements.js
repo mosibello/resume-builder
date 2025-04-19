@@ -251,7 +251,7 @@ export const RepeaterField = (props) => {
             <div>
               <span
                 onClick={props.handleAdd}
-                className="text-theme-notify block text-xs cursor-pointer hover:underline"
+                className="text-[var(--t-primary-branding-color)] block text-xs cursor-pointer hover:underline"
               >
                 + Add
               </span>
@@ -343,7 +343,7 @@ export const RepeaterListItem = ({
 
   return (
     <div
-      // data-attribute-id={id}
+      data-attribute-id={id}
       ref={setNodeRef}
       style={style}
       key={index}
@@ -370,13 +370,13 @@ export const RepeaterListItem = ({
       <div className="flex theme-row text-theme-notify -mx-2 items-center">
         {repeaterEditingMeta && repeaterEditingMeta.index === index && (
           <div className="theme-column px-2">
-            <div className="badge bg-theme-primary border-none flex">
+            <div className="badge bg-[var(--t-primary-branding-color)] text-[var(--t-cp-base-white)] border-none flex">
               <span style={{ fontSize: "0.6rem" }}>Editing</span>
             </div>
           </div>
         )}
         <div
-          className="theme-column px-2 cursor-pointer"
+          className="theme-column px-2 cursor-pointer text-[var(--t-primary-branding-color)]"
           onClick={() => {
             handleEdit(index),
               handlers.handleRepeaterMeta({
@@ -401,7 +401,7 @@ export const RepeaterListItem = ({
           </svg>
         </div>
         <div
-          className="theme-column px-2 cursor-pointer"
+          className="theme-column px-2 cursor-pointer text-[var(--t-primary-branding-color)]"
           onClick={() => handleClone(index)}
         >
           <svg
@@ -420,7 +420,7 @@ export const RepeaterListItem = ({
           </svg>
         </div>
         <div
-          className="theme-column px-2 cursor-pointer"
+          className="theme-column px-2 cursor-pointer text-[var(--t-primary-branding-color)]"
           onClick={() => handleDelete(index)}
         >
           <svg
