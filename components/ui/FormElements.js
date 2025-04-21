@@ -231,8 +231,6 @@ export const RepeaterField = (props) => {
   const { repeater, repeaterEditingMeta, sortingLabel, id } = props;
   const [activeId, setactiveId] = useState(null);
 
-  console.log(repeater.find((x) => x.id === activeId));
-
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {

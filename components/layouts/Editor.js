@@ -1,21 +1,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import Bounded from "@/components/wrappers/Bounded";
-import Container from "@/components/wrappers/Container";
-import Image from "next/image";
-import Heading from "@/components/ui/Heading";
-import Paragraph from "@/components/ui/Paragraph";
 import EditorTopbar from "@/components/partials/EditorTopbar";
 import ResumeViewport from "@/components/partials/ResumeViewport";
 import { BasicDetailsSettings } from "@/components/layouts/resume/panels/BasicDetails";
 import EditorInfobar from "@/components/partials/EditorInfobar";
-import {
-  Label,
-  Input,
-  TextareaAuto,
-  Select,
-} from "@/components/ui/FormElements";
 import { ExperienceSettings } from "@/components/layouts/resume/panels/Experience";
+import PrimaryNavigationItem from "@/components/layouts/resume/PrimaryNavigationItem";
 import { arrayMove } from "@dnd-kit/sortable";
 import { generateRandomUID } from "@/lib/helpers.js";
 
@@ -23,6 +13,11 @@ const addNamesToFields = (fields) =>
   Object.fromEntries(
     Object.entries(fields).map(([key, val]) => [key, { ...val, name: key }])
   );
+
+const primaryNavigation = [
+  { name: `basic-details`, label: `Basic Details` },
+  { name: `canvas`, label: `Canvas` },
+];
 
 const Editor = () => {
   const [resumeData, setResumeData] = useState({
@@ -64,6 +59,8 @@ const Editor = () => {
       },
     },
   });
+
+  const [activePanel, setActivePanel] = useState(null);
 
   const handleFieldChange = (fieldName) => (e) => {
     const value = e.target.value;
@@ -122,10 +119,7 @@ const Editor = () => {
         if (!itemToClone) return prev;
 
         const clonedItem = structuredClone(itemToClone);
-
-        // Assign a new unique ID (timestamp + random is good enough for client-side)
         clonedItem.id = generateRandomUID();
-
         const newItems = [
           ...items.slice(0, indexToClone + 1),
           clonedItem,
@@ -155,7 +149,7 @@ const Editor = () => {
 
         if (!Array.isArray(repeaterContent)) {
           console.warn(`Repeater content not found for key: ${panelKey}`);
-          return prev; // Return unchanged state if missing
+          return prev;
         }
 
         const oldIndex = repeaterContent.findIndex((x) => x.id === activeId);
@@ -226,6 +220,17 @@ const Editor = () => {
     });
   };
 
+  const handleActivePanel = (e) => {
+    if (e) {
+      setActivePanel({
+        label: e.label,
+        name: e.name,
+      });
+    } else {
+      setActivePanel(null);
+    }
+  };
+
   useEffect(() => {
     setResumeData((prev) => ({
       ...prev,
@@ -236,6 +241,10 @@ const Editor = () => {
   useEffect(() => {
     console.log(resumeData.content);
   }, [resumeData]);
+
+  useEffect(() => {
+    console.log(activePanel);
+  }, [activePanel]);
 
   return (
     <div className="h-screen overflow-hidden">
@@ -248,35 +257,42 @@ const Editor = () => {
           <div className="theme-column text-theme-text w-full max-w-sm bg-white border-r border-theme-border">
             <div className="theme-box flex items-center justify-between bg-white py-4 px-4">
               <div className="theme-box">
-                {/* <h2 className="text-xl font-medium">Edit Resume</h2> */}
-
-                <div className="theme-box">
-                  <div className="text-sm breadcrumbs">
-                    <ul>
-                      <li className="cursor-pointer hover:theme-primary">
-                        <span className="text-[var(--t-primary-branding-color)] hover:text-[--t-primary-branding-hover-color]">
-                          Home
-                        </span>
-                      </li>
-                      <li>
-                        <span
-                          className="text-gray-400 truncate cursor-not-allowed"
-                          style={{ width: `200px` }}
+                {activePanel ? (
+                  <div className="theme-box">
+                    <div className="text-sm breadcrumbs">
+                      <ul>
+                        <li
+                          className="cursor-pointer hover:theme-primary"
+                          onClick={() => handleActivePanel()}
                         >
-                          Basic Information
-                        </span>
-                      </li>
-                    </ul>
+                          <span className="text-[var(--t-primary-branding-color)] hover:text-[--t-primary-branding-hover-color] hover:underline">
+                            Home
+                          </span>
+                        </li>
+                        <li>
+                          <span
+                            className="text-gray-400 truncate cursor-not-allowed"
+                            style={{ width: `200px` }}
+                          >
+                            {activePanel?.label}
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
+                    <h2 className="text-xl font-medium">
+                      {activePanel?.label}
+                    </h2>
                   </div>
-                  <h2 className="text-xl font-medium">Basic Information</h2>
-                </div>
+                ) : (
+                  <h2 className="text-xl font-medium">Edit Resume</h2>
+                )}
               </div>
             </div>
             <div className="theme-box text-theme-text-light border-t border-theme-border ">
               <div className="theme-row bg-theme-panel-dark flex flex-items-center">
                 <div className="theme-column w-full false">
-                  <div className="theme-box font-medium px-4 py-4 border-theme-border border-b cursor-pointer">
-                    Content
+                  <div className="theme-box font-medium px-4 py-4 border-theme-border border-b">
+                    {activePanel ? `Content` : `Navigation`}
                   </div>
                 </div>
               </div>
@@ -285,73 +301,43 @@ const Editor = () => {
               style={{ height: "calc(100vh - 57px - 60px - 125px)" }}
               className="theme-box bg-theme-panel overflow-y-auto pb-24"
             >
-              <div className="c__editor__sidebar__primary-navigation">
-                <div className="px-[1rem] py-[1.25rem] border-b border-theme-border text-theme-text-light cursor-pointer hover-bg-theme-panel-dark">
-                  <div className="flex items-center justify-between -mx-1">
-                    <div className="px-1">
-                      <h2 className="font-medium u__p text-inherit">
-                        Basic Details
-                      </h2>
-                    </div>
-                    <div className="px-1">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={2}
-                        stroke="currentColor"
-                        className="size-4"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="m8.25 4.5 7.5 7.5-7.5 7.5"
-                        />
-                      </svg>
-                    </div>
-                  </div>
+              {!activePanel && (
+                <div className="c__editor__sidebar__primary-navigation">
+                  {primaryNavigation.map((elem, idx) => {
+                    return (
+                      <PrimaryNavigationItem
+                        key={idx}
+                        handleActivePanel={handleActivePanel}
+                        name={elem.name}
+                        label={elem.label}
+                      />
+                    );
+                  })}
                 </div>
-                <div className="px-[1rem] py-[1.25rem] border-b border-theme-border text-theme-text-light cursor-pointer hover-bg-theme-panel-dark">
-                  <div className="flex items-center justify-between -mx-1">
-                    <div className="px-1">
-                      <h2 className="font-medium u__p text-inherit">Canvas</h2>
-                    </div>
-                    <div className="px-1">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={2}
-                        stroke="currentColor"
-                        className="size-4"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="m8.25 4.5 7.5 7.5-7.5 7.5"
-                        />
-                      </svg>
-                    </div>
-                  </div>
+              )}
+              {activePanel && (
+                <div className="c__editor__sidebar__editor-form px-[1rem] py-[1.25rem] bg-theme-panel-dark border-theme-border border-b">
+                  {activePanel.name === `basic-details` && (
+                    <BasicDetailsSettings
+                      firstName={resumeData.content.firstName}
+                      lastName={resumeData.content.lastName}
+                      phone={resumeData.content.phone}
+                      emailAddress={resumeData.content.emailAddress}
+                      websiteUrl={resumeData.content.websiteUrl}
+                      location={resumeData.content.location}
+                      handleFieldChange={handleFieldChange}
+                    />
+                  )}
+                  {activePanel.name === `canvas` && (
+                    <ExperienceSettings
+                      settings={resumeData.content.experience}
+                      repeaterHandlers={repeaterHandlers}
+                      panelKey="experience"
+                      handleRepeaterFieldChange={handleRepeaterFieldChange}
+                    />
+                  )}
                 </div>
-              </div>
-              <div className="c__editor__sidebar__editor-form px-[1rem] py-[1.25rem] bg-theme-panel-dark border-theme-border border-b">
-                <BasicDetailsSettings
-                  firstName={resumeData.content.firstName}
-                  lastName={resumeData.content.lastName}
-                  phone={resumeData.content.phone}
-                  emailAddress={resumeData.content.emailAddress}
-                  websiteUrl={resumeData.content.websiteUrl}
-                  location={resumeData.content.location}
-                  handleFieldChange={handleFieldChange}
-                />
-                <ExperienceSettings
-                  settings={resumeData.content.experience}
-                  repeaterHandlers={repeaterHandlers}
-                  panelKey="experience"
-                  handleRepeaterFieldChange={handleRepeaterFieldChange}
-                />
-              </div>
+              )}
             </div>
           </div>
           <div className="transition-all duration-200 overflow-hidden w-full">

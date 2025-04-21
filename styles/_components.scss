@@ -136,7 +136,7 @@
     &--ghost {
       &-primary {
         background: transparent;
-        border: 2px solid var(--t-primary-branding-color);
+        border: 1px solid var(--t-primary-branding-color);
         color: var(--t-primary-branding-color);
         &:hover {
           background: var(--t-primary-branding-hover-color);
@@ -145,10 +145,10 @@
       }
       &-secondary {
         background: transparent;
-        border: 2px solid var(--t-secondary-branding-color);
+        border: 1px solid var(--t-secondary-branding-color);
         color: var(--t-secondary-branding-color);
         &:hover {
-          background: var(--t-secondary-branding-hover-color);
+          background-color: #ffffff0d;
           color: var(--t-cp-base-white);
         }
       }
