@@ -229,7 +229,9 @@ export const DatePicker = ({ date, setDate }) => {
 
 export const RepeaterField = (props) => {
   const { repeater, repeaterEditingMeta, sortingLabel, id } = props;
-  const [activeID, setActiveID] = useState(null);
+  const [activeId, setactiveId] = useState(null);
+
+  console.log(repeater.find((x) => x.id === activeId));
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -290,12 +292,13 @@ export const RepeaterField = (props) => {
                 })}
               </SortableContext>
               <DragOverlay>
-                {activeID ? (
+                {activeId ? (
                   <RepeaterListItem
-                    elem={repeater.find((x) => x.id === activeID)}
-                    handleEdit={props.handleEdit}
-                    handleClone={props.handleClone}
-                    handleDelete={props.handleDelete}
+                    elem={repeater.find((x) => x.id === activeId)}
+                    sortingLabel={sortingLabel}
+                    // handleEdit={props.handleEdit}
+                    // handleClone={props.handleClone}
+                    // handleDelete={props.handleDelete}
                   />
                 ) : null}
               </DragOverlay>
@@ -312,12 +315,12 @@ export const RepeaterField = (props) => {
     if (active?.id !== over?.id) {
       return props.handleMove(active, over);
     }
-    setActiveID(null);
+    setactiveId(null);
   }
 
   function handleDragStart(event) {
     props.handleFinishEdit();
-    setActiveID(event.active.id);
+    setactiveId(event.active.id);
   }
 };
 
@@ -343,6 +346,7 @@ export const RepeaterListItem = ({
 
   return (
     <div
+      id={id}
       data-attribute-id={id}
       ref={setNodeRef}
       style={style}
@@ -352,7 +356,12 @@ export const RepeaterListItem = ({
       }`}
     >
       <span className="text-theme-text-light text-sm block truncate pr-5 flex items-center">
-        <button type="button" {...listeners} {...attributes} className="pr-3">
+        <button
+          type="button"
+          {...listeners}
+          {...attributes}
+          className="pr-3 cursor-grab"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             style={{ width: "5px", height: "24px" }}

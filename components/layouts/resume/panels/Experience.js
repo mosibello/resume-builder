@@ -13,8 +13,7 @@ import {
   RepeaterListItem,
   RepeaterField,
 } from "@/components/ui/FormElements";
-// Repeater Fields
-import { arrayMove } from "@dnd-kit/sortable";
+import { generateRandomUID } from "@/lib/helpers.js";
 
 export const BasicDetails = ({
   jobTitle,
@@ -82,14 +81,14 @@ export const BasicDetails = ({
 
 // Settings
 
-const repeaterFields = (id) => {
+const repeaterFields = () => {
   let meta = {
     jobTitle: `Senior Software Engineer, Frontend`,
     organization: `Taylor Corporation`,
     startDate: `04/2023`,
     endDate: `Present`,
     description: `<p>Taylor Corporation is a graphical communications company with more than 10,000 employees headquartered in North Mankato, Minnesota</p>`,
-    id,
+    id: generateRandomUID(),
   };
   return meta;
 };
@@ -132,7 +131,7 @@ export const ExperienceSettings = ({
         handleAdd={() => {
           const newIndex = readyToAddIndex + 1;
           setReadyToAddIndex(newIndex);
-          repeaterHandlers.add(panelKey, repeaterFields(newIndex));
+          repeaterHandlers.add(panelKey, repeaterFields());
         }}
         handleEdit={(index) => {
           setRepeaterEditingMeta({
@@ -152,20 +151,9 @@ export const ExperienceSettings = ({
         handleDelete={(index) => {
           repeaterHandlers.delete(panelKey, index);
         }}
-        // handleMove={(active, over) => {
-        //   setProp((props) => {
-        //     if (active && over) {
-        //       const oldIndex = props.repeater.findIndex(
-        //         (x) => x.id === active.id
-        //       );
-        //       const newIndex = props.repeater.findIndex(
-        //         (x) => x.id === over.id
-        //       );
-        //       const output = arrayMove(props.repeater, oldIndex, newIndex);
-        //       return (props.repeater = output);
-        //     }
-        //   });
-        // }}
+        handleMove={(active, over) => {
+          repeaterHandlers.move("experience", active.id, over.id);
+        }}
       >
         {repeaterEditingMeta && repeater && repeater.length > 0 && (
           <>

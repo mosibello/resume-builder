@@ -16,6 +16,8 @@ import {
   Select,
 } from "@/components/ui/FormElements";
 import { ExperienceSettings } from "@/components/layouts/resume/panels/Experience";
+import { arrayMove } from "@dnd-kit/sortable";
+import { generateRandomUID } from "@/lib/helpers.js";
 
 const addNamesToFields = (fields) =>
   Object.fromEntries(
@@ -116,12 +118,20 @@ const Editor = () => {
       setResumeData((prev) => {
         const items = prev.content[panelKey].repeater.content;
         const itemToClone = items[indexToClone];
+
+        if (!itemToClone) return prev;
+
         const clonedItem = structuredClone(itemToClone);
+
+        // Assign a new unique ID (timestamp + random is good enough for client-side)
+        clonedItem.id = generateRandomUID();
+
         const newItems = [
           ...items.slice(0, indexToClone + 1),
           clonedItem,
           ...items.slice(indexToClone + 1),
         ];
+
         return {
           ...prev,
           content: {
@@ -131,6 +141,42 @@ const Editor = () => {
               repeater: {
                 ...prev.content[panelKey].repeater,
                 content: newItems,
+              },
+            },
+          },
+        };
+      });
+    },
+
+    move: (panelKey, activeId, overId) => {
+      setResumeData((prev) => {
+        const panel = prev.content?.[panelKey];
+        const repeaterContent = panel?.repeater?.content;
+
+        if (!Array.isArray(repeaterContent)) {
+          console.warn(`Repeater content not found for key: ${panelKey}`);
+          return prev; // Return unchanged state if missing
+        }
+
+        const oldIndex = repeaterContent.findIndex((x) => x.id === activeId);
+        const newIndex = repeaterContent.findIndex((x) => x.id === overId);
+
+        if (oldIndex === -1 || newIndex === -1) {
+          console.warn(`Could not find item to move in repeater.`);
+          return prev;
+        }
+
+        const reordered = arrayMove(repeaterContent, oldIndex, newIndex);
+
+        return {
+          ...prev,
+          content: {
+            ...prev.content,
+            [panelKey]: {
+              ...panel,
+              repeater: {
+                ...panel.repeater,
+                content: reordered,
               },
             },
           },
