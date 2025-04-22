@@ -3,7 +3,7 @@ import React from "react";
 const PrimaryNavigationItem = ({ name, label, handleActivePanel }) => {
   return (
     <div
-      onClick={() => handleActivePanel({ label, name })}
+      onClick={() => handleActivePanel({ label, name }, 0)}
       data-name={name}
       className="px-[1rem] py-[1.25rem] border-b border-theme-border text-theme-text-light cursor-pointer hover-bg-theme-panel-dark"
     >

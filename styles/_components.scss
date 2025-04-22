@@ -132,6 +132,12 @@
       &:hover {
         background: var(--t-secondary-branding-hover-color);
       }
+      &--light {
+        background: #f5f8fa;
+        &:hover {
+          background-color: rgba(234, 240, 246);
+        }
+      }
     }
     &--ghost {
       &-primary {

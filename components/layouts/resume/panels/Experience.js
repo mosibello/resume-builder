@@ -1,5 +1,4 @@
 "use client";
-// import dynamic from "next/dynamic";
 import React, { useState } from "react";
 import Heading from "@/components/ui/Heading";
 import IconWithText from "@/components/layouts/resume/IconWithText";
@@ -100,6 +99,7 @@ export const ExperienceSettings = ({
   repeaterHandlers,
   panelKey,
   handleRepeaterFieldChange,
+  moduleIndex,
 }) => {
   const { sortingLabel } = settings.repeater;
   const repeater = settings.repeater.content;
@@ -122,8 +122,8 @@ export const ExperienceSettings = ({
     <>
       <RepeaterField
         wrapperClassName=""
-        label="Repeater"
-        name="repeater"
+        label="Experience"
+        name="experience"
         id={`experience-repeater-field`}
         repeaterEditingMeta={repeaterEditingMeta}
         repeater={repeater}
@@ -131,7 +131,7 @@ export const ExperienceSettings = ({
         handleAdd={() => {
           const newIndex = readyToAddIndex + 1;
           setReadyToAddIndex(newIndex);
-          repeaterHandlers.add(panelKey, repeaterFields());
+          repeaterHandlers.add(moduleIndex, repeaterFields());
         }}
         handleEdit={(index) => {
           setRepeaterEditingMeta({
@@ -146,13 +146,13 @@ export const ExperienceSettings = ({
           });
         }}
         handleClone={(index) => {
-          repeaterHandlers.clone(panelKey, index);
+          repeaterHandlers.clone(moduleIndex, index);
         }}
         handleDelete={(index) => {
-          repeaterHandlers.delete(panelKey, index);
+          repeaterHandlers.delete(moduleIndex, index);
         }}
         handleMove={(active, over) => {
-          repeaterHandlers.move("experience", active.id, over.id);
+          repeaterHandlers.move(moduleIndex, active.id, over.id);
         }}
       >
         {repeaterEditingMeta && repeater && repeater.length > 0 && (

@@ -8,6 +8,7 @@ import { ExperienceSettings } from "@/components/layouts/resume/panels/Experienc
 import PrimaryNavigationItem from "@/components/layouts/resume/PrimaryNavigationItem";
 import { arrayMove } from "@dnd-kit/sortable";
 import { generateRandomUID } from "@/lib/helpers.js";
+import CanvasSettings from "components/layouts/resume/CanvasSettings";
 
 const addNamesToFields = (fields) =>
   Object.fromEntries(
@@ -33,6 +34,60 @@ const Editor = () => {
       emailAddress: { value: `johndoe@gmail.com` },
       websiteUrl: { value: `https://example.com` },
       location: { value: `Chicago, IL` },
+      canvas: {
+        repeater: {
+          sortingLabel: `moduleLabel`,
+          modules: [
+            {
+              id: 1,
+              moduleType: `experience`,
+              moduleLabel: `Experience`,
+              content: {
+                repeater: {
+                  sortingLabel: "jobTitle",
+                  content: [
+                    {
+                      id: 1,
+                      jobTitle: `Senior Software Engineer, Frontend`,
+                      organization: `Taylor Corporation`,
+                      startDate: `04/2023`,
+                      endDate: `Present`,
+                      description: `<p>Taylor Corporation is a graphical communications company with more than 10,000 employees headquartered in North Mankato, Minnesota</p>`,
+                    },
+                    {
+                      id: 2,
+                      jobTitle: `Senior Software Engineer, Frontend`,
+                      organization: `Taylor Corporation`,
+                      startDate: `04/2023`,
+                      endDate: `Present`,
+                      description: `<p>Taylor Corporation is a graphical communications company with more than 10,000 employees headquartered in North Mankato, Minnesota</p>`,
+                    },
+                  ],
+                },
+              },
+            },
+            {
+              id: 2,
+              moduleType: `education`,
+              moduleLabel: `Education`,
+              content: {
+                repeater: {
+                  sortingLabel: "degreeTitle",
+                  content: [
+                    {
+                      id: 1,
+                      degreeTitle: `BSc Hons Double Majors in Economics & Management`,
+                      school: `University of London International Programmes`,
+                      startDate: `2012`,
+                      endDate: `2016`,
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+        },
+      },
       experience: {
         heading: { value: `Experience` },
         repeater: {
@@ -62,6 +117,11 @@ const Editor = () => {
 
   const [activePanel, setActivePanel] = useState(null);
 
+  const [canvasEditingMeta, setCanvasEditingMeta] = useState({
+    editing: false,
+    index: null,
+  });
+
   const handleFieldChange = (fieldName) => (e) => {
     const value = e.target.value;
     setResumeData((prev) => ({
@@ -76,65 +136,82 @@ const Editor = () => {
     }));
   };
 
-  const repeaterHandlers = {
-    add: (panelKey, newItem) => {
-      setResumeData((prev) => ({
-        ...prev,
-        content: {
-          ...prev.content,
-          [panelKey]: {
-            ...prev.content[panelKey],
-            repeater: {
-              ...prev.content[panelKey].repeater,
-              content: [...prev.content[panelKey].repeater.content, newItem],
-            },
-          },
-        },
-      }));
-    },
-    delete: (panelKey, indexToDelete) => {
+  const canvasHandlers = {
+    add: (newModule) => {
       setResumeData((prev) => {
-        const items = prev.content[panelKey].repeater.content;
-        const newItems = items.filter((_, idx) => idx !== indexToDelete);
+        const modules = prev.content.canvas.repeater.modules;
         return {
           ...prev,
           content: {
             ...prev.content,
-            [panelKey]: {
-              ...prev.content[panelKey],
+            canvas: {
+              ...prev.content.canvas,
               repeater: {
-                ...prev.content[panelKey].repeater,
-                content: newItems,
+                ...prev.content.canvas.repeater,
+                modules: [...modules, newModule],
               },
             },
           },
         };
       });
     },
-    clone: (panelKey, indexToClone) => {
+
+    delete: (indexToDelete) => {
       setResumeData((prev) => {
-        const items = prev.content[panelKey].repeater.content;
-        const itemToClone = items[indexToClone];
+        const modules = prev.content.canvas.repeater.modules;
+        const filtered = modules.filter((_, idx) => idx !== indexToDelete);
+
+        return {
+          ...prev,
+          content: {
+            ...prev.content,
+            canvas: {
+              ...prev.content.canvas,
+              repeater: {
+                ...prev.content.canvas.repeater,
+                modules: filtered,
+              },
+            },
+          },
+        };
+      });
+    },
+
+    clone: (indexToClone) => {
+      setResumeData((prev) => {
+        const modules = prev.content.canvas.repeater.modules;
+        const itemToClone = modules[indexToClone];
 
         if (!itemToClone) return prev;
 
         const clonedItem = structuredClone(itemToClone);
+
         clonedItem.id = generateRandomUID();
-        const newItems = [
-          ...items.slice(0, indexToClone + 1),
+
+        // Generate new IDs for nested repeater content items, if any
+        if (clonedItem?.content?.repeater?.content) {
+          clonedItem.content.repeater.content =
+            clonedItem.content.repeater.content.map((item) => ({
+              ...item,
+              id: generateRandomUID(),
+            }));
+        }
+
+        const newModules = [
+          ...modules.slice(0, indexToClone + 1),
           clonedItem,
-          ...items.slice(indexToClone + 1),
+          ...modules.slice(indexToClone + 1),
         ];
 
         return {
           ...prev,
           content: {
             ...prev.content,
-            [panelKey]: {
-              ...prev.content[panelKey],
+            canvas: {
+              ...prev.content.canvas,
               repeater: {
-                ...prev.content[panelKey].repeater,
-                content: newItems,
+                ...prev.content.canvas.repeater,
+                modules: newModules,
               },
             },
           },
@@ -142,35 +219,198 @@ const Editor = () => {
       });
     },
 
-    move: (panelKey, activeId, overId) => {
+    move: (activeId, overId) => {
       setResumeData((prev) => {
-        const panel = prev.content?.[panelKey];
-        const repeaterContent = panel?.repeater?.content;
+        const modules = prev.content.canvas.repeater.modules;
 
-        if (!Array.isArray(repeaterContent)) {
-          console.warn(`Repeater content not found for key: ${panelKey}`);
+        const oldIndex = modules.findIndex((x) => x.id === activeId);
+        const newIndex = modules.findIndex((x) => x.id === overId);
+
+        if (oldIndex === -1 || newIndex === -1) {
+          console.warn("Could not find modules to move.");
           return prev;
         }
 
-        const oldIndex = repeaterContent.findIndex((x) => x.id === activeId);
-        const newIndex = repeaterContent.findIndex((x) => x.id === overId);
+        const reordered = arrayMove(modules, oldIndex, newIndex);
+
+        return {
+          ...prev,
+          content: {
+            ...prev.content,
+            canvas: {
+              ...prev.content.canvas,
+              repeater: {
+                ...prev.content.canvas.repeater,
+                modules: reordered,
+              },
+            },
+          },
+        };
+      });
+    },
+  };
+
+  const repeaterHandlers = {
+    add: (moduleIndex, newItem) => {
+      setResumeData((prev) => {
+        const modules = prev.content.canvas.repeater.modules;
+        const targetModule = modules[moduleIndex];
+
+        const updatedModules = [...modules];
+        updatedModules[moduleIndex] = {
+          ...targetModule,
+          content: {
+            ...targetModule.content,
+            repeater: {
+              ...targetModule.content.repeater,
+              content: [...targetModule.content.repeater.content, newItem],
+            },
+          },
+        };
+
+        return {
+          ...prev,
+          content: {
+            ...prev.content,
+            canvas: {
+              ...prev.content.canvas,
+              repeater: {
+                ...prev.content.canvas.repeater,
+                modules: updatedModules,
+              },
+            },
+          },
+        };
+      });
+    },
+
+    delete: (moduleIndex, indexToDelete) => {
+      setResumeData((prev) => {
+        const modules = prev.content.canvas.repeater.modules;
+        const targetModule = modules[moduleIndex];
+
+        const filteredItems = targetModule.content.repeater.content.filter(
+          (_, idx) => idx !== indexToDelete
+        );
+
+        const updatedModules = [...modules];
+        updatedModules[moduleIndex] = {
+          ...targetModule,
+          content: {
+            ...targetModule.content,
+            repeater: {
+              ...targetModule.content.repeater,
+              content: filteredItems,
+            },
+          },
+        };
+
+        return {
+          ...prev,
+          content: {
+            ...prev.content,
+            canvas: {
+              ...prev.content.canvas,
+              repeater: {
+                ...prev.content.canvas.repeater,
+                modules: updatedModules,
+              },
+            },
+          },
+        };
+      });
+    },
+
+    clone: (moduleIndex, indexToClone) => {
+      setResumeData((prev) => {
+        const modules = prev.content.canvas.repeater.modules;
+        const targetModule = modules[moduleIndex];
+        const items = targetModule.content.repeater.content;
+        const itemToClone = items[indexToClone];
+
+        if (!itemToClone) return prev;
+
+        const clonedItem = structuredClone(itemToClone);
+        clonedItem.id = generateRandomUID();
+
+        const newItems = [
+          ...items.slice(0, indexToClone + 1),
+          clonedItem,
+          ...items.slice(indexToClone + 1),
+        ];
+
+        const updatedModules = [...modules];
+        updatedModules[moduleIndex] = {
+          ...targetModule,
+          content: {
+            ...targetModule.content,
+            repeater: {
+              ...targetModule.content.repeater,
+              content: newItems,
+            },
+          },
+        };
+
+        return {
+          ...prev,
+          content: {
+            ...prev.content,
+            canvas: {
+              ...prev.content.canvas,
+              repeater: {
+                ...prev.content.canvas.repeater,
+                modules: updatedModules,
+              },
+            },
+          },
+        };
+      });
+    },
+
+    move: (moduleIndex, activeId, overId) => {
+      setResumeData((prev) => {
+        const modules = prev.content.canvas.repeater.modules;
+        const targetModule = modules[moduleIndex];
+        const items = targetModule.content.repeater.content;
+
+        if (!Array.isArray(items)) {
+          console.warn(
+            `Repeater content not found for moduleIndex: ${moduleIndex}`
+          );
+          return prev;
+        }
+
+        const oldIndex = items.findIndex((x) => x.id === activeId);
+        const newIndex = items.findIndex((x) => x.id === overId);
 
         if (oldIndex === -1 || newIndex === -1) {
           console.warn(`Could not find item to move in repeater.`);
           return prev;
         }
 
-        const reordered = arrayMove(repeaterContent, oldIndex, newIndex);
+        const reordered = arrayMove(items, oldIndex, newIndex);
+
+        const updatedModules = [...modules];
+        updatedModules[moduleIndex] = {
+          ...targetModule,
+          content: {
+            ...targetModule.content,
+            repeater: {
+              ...targetModule.content.repeater,
+              content: reordered,
+            },
+          },
+        };
 
         return {
           ...prev,
           content: {
             ...prev.content,
-            [panelKey]: {
-              ...panel,
+            canvas: {
+              ...prev.content.canvas,
               repeater: {
-                ...panel.repeater,
-                content: reordered,
+                ...prev.content.canvas.repeater,
+                modules: updatedModules,
               },
             },
           },
@@ -220,15 +460,30 @@ const Editor = () => {
     });
   };
 
-  const handleActivePanel = (e) => {
-    if (e) {
-      setActivePanel({
-        label: e.label,
-        name: e.name,
-      });
-    } else {
-      setActivePanel(null);
-    }
+  const handleActivePanel = (e, index, clearAll = false) => {
+    setActivePanel((prev) => {
+      if (clearAll) return null;
+
+      let updated = Array.isArray(prev) ? [...prev] : [];
+
+      if (index !== 0 && index !== 1) {
+        console.warn("Invalid index for active panel. Must be 0 or 1.");
+        return prev;
+      }
+      while (updated.length <= index) {
+        updated.push(null);
+      }
+      updated[index] = e ? { label: e.label, name: e.name } : null;
+      while (updated.length && updated[updated.length - 1] === null) {
+        updated.pop();
+      }
+      const isAllNull = updated.every((item) => item === null);
+      return updated.length === 0 || isAllNull ? null : updated;
+    });
+  };
+
+  const handleCanvasEditingMeta = (object) => {
+    setCanvasEditingMeta(object);
   };
 
   useEffect(() => {
@@ -238,13 +493,17 @@ const Editor = () => {
     }));
   }, []);
 
-  useEffect(() => {
-    console.log(resumeData.content);
-  }, [resumeData]);
+  // useEffect(() => {
+  //   console.log(resumeData.content);
+  // }, [resumeData]);
 
   useEffect(() => {
-    console.log(activePanel);
+    console.log(`active panel:`, activePanel);
   }, [activePanel]);
+
+  useEffect(() => {
+    console.log(`active canvas editing meta:`, canvasEditingMeta);
+  }, [canvasEditingMeta]);
 
   return (
     <div className="h-screen overflow-hidden">
@@ -263,20 +522,52 @@ const Editor = () => {
                       <ul>
                         <li
                           className="cursor-pointer hover:theme-primary"
-                          onClick={() => handleActivePanel()}
+                          onClick={() => {
+                            handleActivePanel(null, null, true);
+                            handleCanvasEditingMeta({
+                              editing: false,
+                              index: null,
+                            });
+                          }}
                         >
                           <span className="text-[var(--t-primary-branding-color)] hover:text-[--t-primary-branding-hover-color] hover:underline">
                             Home
                           </span>
                         </li>
-                        <li>
-                          <span
-                            className="text-gray-400 truncate cursor-not-allowed"
-                            style={{ width: `200px` }}
-                          >
-                            {activePanel?.label}
-                          </span>
-                        </li>
+                        {activePanel.length > 1 ? (
+                          <>
+                            <li
+                              onClick={() => {
+                                handleActivePanel(null, 1);
+                                handleCanvasEditingMeta({
+                                  editing: false,
+                                  index: null,
+                                });
+                              }}
+                            >
+                              <span className="text-[var(--t-primary-branding-color)] hover:text-[--t-primary-branding-hover-color] hover:underline cursor-pointer">
+                                {activePanel[0]?.label}
+                              </span>
+                            </li>
+                            <li>
+                              <span
+                                className="text-gray-400 truncate cursor-not-allowed"
+                                style={{ width: `200px` }}
+                              >
+                                {activePanel[1]?.label}
+                              </span>
+                            </li>
+                          </>
+                        ) : (
+                          <li>
+                            <span
+                              className="text-gray-400 truncate cursor-not-allowed"
+                              style={{ width: `200px` }}
+                            >
+                              {activePanel[0]?.label}
+                            </span>
+                          </li>
+                        )}
                       </ul>
                     </div>
                     <h2 className="text-xl font-medium">
@@ -317,7 +608,7 @@ const Editor = () => {
               )}
               {activePanel && (
                 <div className="c__editor__sidebar__editor-form px-[1rem] py-[1.25rem] bg-theme-panel-dark border-theme-border border-b">
-                  {activePanel.name === `basic-details` && (
+                  {activePanel[0]?.name === `basic-details` && (
                     <BasicDetailsSettings
                       firstName={resumeData.content.firstName}
                       lastName={resumeData.content.lastName}
@@ -328,11 +619,16 @@ const Editor = () => {
                       handleFieldChange={handleFieldChange}
                     />
                   )}
-                  {activePanel.name === `canvas` && (
-                    <ExperienceSettings
-                      settings={resumeData.content.experience}
+                  {activePanel[0]?.name === `canvas` && (
+                    <CanvasSettings
+                      activePanel={activePanel}
+                      handleCanvasEditingMeta={handleCanvasEditingMeta}
+                      canvasEditingMeta={canvasEditingMeta}
+                      handleActivePanel={handleActivePanel}
+                      settings={resumeData.content.canvas}
                       repeaterHandlers={repeaterHandlers}
-                      panelKey="experience"
+                      canvasHandlers={canvasHandlers}
+                      panelKey="canvas"
                       handleRepeaterFieldChange={handleRepeaterFieldChange}
                     />
                   )}

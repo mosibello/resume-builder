@@ -1,18 +1,32 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
+import Button from "@/components/ui/Button";
+import { RepeaterField } from "@/components/ui/FormElements";
+import { generateRandomUID } from "@/lib/helpers.js";
+import { ExperienceSettings } from "@/components/layouts/resume/panels/Experience";
 
-export const CanvasSettings = ({
+const repeaterFields = () => {
+  let meta = {
+    moduleLabel: `Choose Module`,
+    id: generateRandomUID(),
+  };
+  return meta;
+};
+
+let defaultRepeaterLength = 2;
+
+const CanvasSettings = ({
   settings,
   repeaterHandlers,
-  panelKey,
+  canvasHandlers,
   handleRepeaterFieldChange,
+  handleActivePanel,
+  canvasEditingMeta,
+  handleCanvasEditingMeta,
+  activePanel,
 }) => {
   const { sortingLabel } = settings.repeater;
-  const repeater = settings.repeater.content;
-
-  const [repeaterEditingMeta, setRepeaterEditingMeta] = useState({
-    editing: false,
-    index: null,
-  });
+  const repeater = settings.repeater.modules;
 
   const [readyToAddIndex, setReadyToAddIndex] = useState(
     defaultRepeaterLength + 1
@@ -22,45 +36,51 @@ export const CanvasSettings = ({
     const value = e.target.value;
     handleRepeaterFieldChange(pathArray, value);
   };
-
   return (
     <>
       <RepeaterField
-        wrapperClassName=""
-        label="Module Canvas"
-        name="module-canvas-repeater-field"
-        id={`module-canvas-repeater-field`}
-        repeaterEditingMeta={repeaterEditingMeta}
+        label="Modules"
+        activePanel={activePanel}
+        name="modules"
+        id={`modules-repeater-field`}
+        repeaterEditingMeta={canvasEditingMeta}
         repeater={repeater}
-        sortingLabel={sortingLabel}
+        sortingLabel={sortingLabel || ``}
         handleAdd={() => {
           const newIndex = readyToAddIndex + 1;
           setReadyToAddIndex(newIndex);
-          repeaterHandlers.add(panelKey, repeaterFields());
+          canvasHandlers.add(repeaterFields());
         }}
         handleEdit={(index) => {
-          setRepeaterEditingMeta({
+          handleCanvasEditingMeta({
             editing: true,
             index,
           });
+          handleActivePanel(
+            {
+              label: repeater[index]?.moduleLabel,
+              name: repeater[index]?.moduleType,
+            },
+            1
+          );
         }}
         handleFinishEdit={(index) => {
-          setRepeaterEditingMeta({
+          handleCanvasEditingMeta({
             editing: false,
             index,
           });
         }}
         handleClone={(index) => {
-          repeaterHandlers.clone(panelKey, index);
+          canvasHandlers.clone(index);
         }}
         handleDelete={(index) => {
-          repeaterHandlers.delete(panelKey, index);
+          canvasHandlers.delete(index);
         }}
         handleMove={(active, over) => {
-          repeaterHandlers.move("experience", active.id, over.id);
+          canvasHandlers.move(active.id, over.id);
         }}
       >
-        {repeaterEditingMeta && repeater && repeater.length > 0 && (
+        {canvasEditingMeta && repeater && repeater.length > 0 && (
           <>
             {repeater.map((elem, index) => {
               return (
@@ -68,53 +88,34 @@ export const CanvasSettings = ({
                   key={index}
                   style={{
                     display: `${
-                      index === repeaterEditingMeta.index ? "block" : "none"
+                      index === canvasEditingMeta.index ? "block" : "none"
                     }`,
                   }}
                 >
-                  <div className="mt-[2rem]">
-                    <div className="c__form">
-                      <div className="c__form__fields-wrapper">
-                        <div className="c__form__fieldset c__form__fieldset--100">
-                          <Label>Job Title</Label>
-                          <TextareaAuto
-                            name={`jobTitle`}
-                            onChange={handleFieldChange([
-                              "experience",
-                              "repeater",
-                              "content",
-                              repeaterEditingMeta.index,
-                              "jobTitle",
-                            ])}
-                            value={elem.jobTitle}
-                            placeholder="Job Title"
-                          />
-                        </div>
-
-                        <div className="c__form__fieldset c__form__fieldset--100">
-                          <Label>Organization</Label>
-                          <TextareaAuto
-                            name={`organization`}
-                            onChange={handleFieldChange([
-                              "experience",
-                              "repeater",
-                              "content",
-                              repeaterEditingMeta.index,
-                              "organization",
-                            ])}
-                            value={elem.organization}
-                            placeholder="Organization"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  {elem.moduleType === `experience` && (
+                    <ExperienceSettings
+                      settings={elem.content}
+                      repeaterHandlers={repeaterHandlers}
+                      panelKey="experience"
+                      handleRepeaterFieldChange={handleRepeaterFieldChange}
+                    />
+                  )}
                 </div>
               );
             })}
           </>
         )}
       </RepeaterField>
+
+      {/* <div className="mt-[1rem]">
+        <Button
+          title="Add Module"
+          theme={`secondary c__button--secondary--light`}
+          size="small"
+        />
+      </div> */}
     </>
   );
 };
+
+export default CanvasSettings;

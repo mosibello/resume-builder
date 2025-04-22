@@ -228,7 +228,8 @@ export const DatePicker = ({ date, setDate }) => {
 };
 
 export const RepeaterField = (props) => {
-  const { repeater, repeaterEditingMeta, sortingLabel, id } = props;
+  const { repeater, repeaterEditingMeta, sortingLabel, id, activePanel } =
+    props;
   const [activeId, setactiveId] = useState(null);
 
   const sensors = useSensors(
@@ -240,69 +241,73 @@ export const RepeaterField = (props) => {
   return (
     <>
       <div className={props.wrapperClassName}>
-        {props.label && (
-          <div className="mb-2 flex items-center justify-between">
-            <label
-              className="text-theme-text-light font-small block"
-              htmlFor={props.name}
-            >
-              {props.label}
-            </label>
-            <div>
-              <span
-                onClick={props.handleAdd}
-                className="text-[var(--t-primary-branding-color)] block text-xs cursor-pointer hover:underline"
+        <div
+          className={`${activePanel && activePanel.length > 1 ? `hidden` : ``}`}
+        >
+          {props.label && (
+            <div className="mb-2 flex items-center justify-between">
+              <label
+                className="text-theme-text-light font-small block"
+                htmlFor={props.name}
               >
-                + Add
-              </span>
+                {props.label}
+              </label>
+              <div>
+                <span
+                  onClick={props.handleAdd}
+                  className="text-[var(--t-primary-branding-color)] block text-xs cursor-pointer hover:underline"
+                >
+                  + Add
+                </span>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {repeater && repeater.length > 0 && (
-          <div className="mt-2">
-            <DndContext
-              id={id}
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragStart={handleDragStart}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext
-                items={repeater}
-                strategy={verticalListSortingStrategy}
+          {repeater && repeater.length > 0 && (
+            <div className="mt-2">
+              <DndContext
+                id={id}
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
               >
-                {repeater.map((elem, index) => {
-                  return (
+                <SortableContext
+                  items={repeater}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {repeater.map((elem, index) => {
+                    return (
+                      <RepeaterListItem
+                        key={elem.id}
+                        elem={elem}
+                        index={index}
+                        sortingLabel={sortingLabel}
+                        repeaterName={props.name}
+                        repeaterEditingMeta={repeaterEditingMeta}
+                        handleEdit={props.handleEdit}
+                        handleClone={props.handleClone}
+                        handleDelete={props.handleDelete}
+                        id={elem.id}
+                      />
+                    );
+                  })}
+                </SortableContext>
+                <DragOverlay>
+                  {activeId ? (
                     <RepeaterListItem
-                      key={index}
-                      elem={elem}
-                      index={index}
+                      elem={repeater.find((x) => x.id === activeId)}
                       sortingLabel={sortingLabel}
-                      repeaterName={props.name}
-                      repeaterEditingMeta={repeaterEditingMeta}
-                      handleEdit={props.handleEdit}
-                      handleClone={props.handleClone}
-                      handleDelete={props.handleDelete}
-                      id={elem.id}
+                      // handleEdit={props.handleEdit}
+                      // handleClone={props.handleClone}
+                      // handleDelete={props.handleDelete}
                     />
-                  );
-                })}
-              </SortableContext>
-              <DragOverlay>
-                {activeId ? (
-                  <RepeaterListItem
-                    elem={repeater.find((x) => x.id === activeId)}
-                    sortingLabel={sortingLabel}
-                    // handleEdit={props.handleEdit}
-                    // handleClone={props.handleClone}
-                    // handleDelete={props.handleDelete}
-                  />
-                ) : null}
-              </DragOverlay>
-            </DndContext>
-          </div>
-        )}
+                  ) : null}
+                </DragOverlay>
+              </DndContext>
+            </div>
+          )}
+        </div>
 
         {props.children}
       </div>
@@ -315,6 +320,18 @@ export const RepeaterField = (props) => {
     }
     setactiveId(null);
   }
+  // function handleDragEnd(event) {
+  //   const { active, over } = event;
+
+  //   if (!active?.id || !over?.id) return;
+
+  //   if (active.id !== over.id) {
+  //     props.handleMove(active, over);
+  //   }
+
+  //   // Always clear drag state
+  //   setactiveId(null);
+  // }
 
   function handleDragStart(event) {
     props.handleFinishEdit();
@@ -383,7 +400,7 @@ export const RepeaterListItem = ({
           </div>
         )}
         <div
-          className="theme-column px-2 cursor-pointer text-[var(--t-primary-branding-color)]"
+          className="theme-column p-[6px] hover:bg-[#f5f8fa] rounded-md cursor-pointer text-[var(--t-primary-branding-color)]"
           onClick={() => {
             handleEdit(index),
               handlers.handleRepeaterMeta({
@@ -408,7 +425,7 @@ export const RepeaterListItem = ({
           </svg>
         </div>
         <div
-          className="theme-column px-2 cursor-pointer text-[var(--t-primary-branding-color)]"
+          className="theme-column p-[6px] hover:bg-[#f5f8fa] rounded-md cursor-pointer text-[var(--t-primary-branding-color)]"
           onClick={() => handleClone(index)}
         >
           <svg
@@ -427,7 +444,7 @@ export const RepeaterListItem = ({
           </svg>
         </div>
         <div
-          className="theme-column px-2 cursor-pointer text-[var(--t-primary-branding-color)]"
+          className="theme-column p-[6px] hover:bg-[#f5f8fa] rounded-md cursor-pointer text-[var(--t-primary-branding-color)]"
           onClick={() => handleDelete(index)}
         >
           <svg
