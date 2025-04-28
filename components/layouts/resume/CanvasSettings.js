@@ -77,7 +77,7 @@ const CanvasSettings = ({
           canvasHandlers.delete(index);
         }}
         handleMove={(active, over) => {
-          canvasHandlers.move(active.id, over.id);
+          canvasHandlers.move(active?.id, over?.id);
         }}
       >
         {canvasEditingMeta && repeater && repeater.length > 0 && (
@@ -98,6 +98,7 @@ const CanvasSettings = ({
                       repeaterHandlers={repeaterHandlers}
                       panelKey="experience"
                       handleRepeaterFieldChange={handleRepeaterFieldChange}
+                      moduleIndex={index}
                     />
                   )}
                 </div>

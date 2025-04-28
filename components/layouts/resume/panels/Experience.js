@@ -84,8 +84,8 @@ const repeaterFields = () => {
   let meta = {
     jobTitle: `Senior Software Engineer, Frontend`,
     organization: `Taylor Corporation`,
-    startDate: `04/2023`,
-    endDate: `Present`,
+    startDate: new Date(),
+    endDate: new Date(),
     description: `<p>Taylor Corporation is a graphical communications company with more than 10,000 employees headquartered in North Mankato, Minnesota</p>`,
     id: generateRandomUID(),
   };
@@ -97,7 +97,6 @@ let defaultRepeaterLength = 2;
 export const ExperienceSettings = ({
   settings,
   repeaterHandlers,
-  panelKey,
   handleRepeaterFieldChange,
   moduleIndex,
 }) => {
@@ -115,7 +114,11 @@ export const ExperienceSettings = ({
 
   const handleFieldChange = (pathArray) => (e) => {
     const value = e.target.value;
-    handleRepeaterFieldChange(pathArray, value);
+    handleRepeaterFieldChange(moduleIndex, pathArray, value);
+  };
+
+  const handleDirectValueChange = (pathArray) => (value) => {
+    handleRepeaterFieldChange(moduleIndex, pathArray, value);
   };
 
   return (
@@ -175,7 +178,6 @@ export const ExperienceSettings = ({
                           <TextareaAuto
                             name={`jobTitle`}
                             onChange={handleFieldChange([
-                              "experience",
                               "repeater",
                               "content",
                               repeaterEditingMeta.index,
@@ -191,7 +193,6 @@ export const ExperienceSettings = ({
                           <TextareaAuto
                             name={`organization`}
                             onChange={handleFieldChange([
-                              "experience",
                               "repeater",
                               "content",
                               repeaterEditingMeta.index,
@@ -199,6 +200,32 @@ export const ExperienceSettings = ({
                             ])}
                             value={elem.organization}
                             placeholder="Organization"
+                          />
+                        </div>
+                        <div className="c__form__fieldset c__form__fieldset--100">
+                          <Label>Start Date</Label>
+                          <DatePicker
+                            date={
+                              elem.startDate ? new Date(elem.startDate) : null
+                            }
+                            setDate={handleDirectValueChange([
+                              "repeater",
+                              "content",
+                              repeaterEditingMeta.index,
+                              "startDate",
+                            ])}
+                          />
+                        </div>
+                        <div className="c__form__fieldset c__form__fieldset--100">
+                          <Label>End Date</Label>
+                          <DatePicker
+                            date={elem.endDate ? new Date(elem.endDate) : null}
+                            setDate={handleDirectValueChange([
+                              "repeater",
+                              "content",
+                              repeaterEditingMeta.index,
+                              "endDate",
+                            ])}
                           />
                         </div>
                       </div>

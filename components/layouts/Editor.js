@@ -50,16 +50,16 @@ const Editor = () => {
                       id: 1,
                       jobTitle: `Senior Software Engineer, Frontend`,
                       organization: `Taylor Corporation`,
-                      startDate: `04/2023`,
-                      endDate: `Present`,
+                      startDate: new Date("2023-04-01"),
+                      endDate: new Date(),
                       description: `<p>Taylor Corporation is a graphical communications company with more than 10,000 employees headquartered in North Mankato, Minnesota</p>`,
                     },
                     {
                       id: 2,
                       jobTitle: `Senior Software Engineer, Frontend`,
                       organization: `Taylor Corporation`,
-                      startDate: `04/2023`,
-                      endDate: `Present`,
+                      startDate: new Date("2023-04-01"),
+                      endDate: new Date(),
                       description: `<p>Taylor Corporation is a graphical communications company with more than 10,000 employees headquartered in North Mankato, Minnesota</p>`,
                     },
                   ],
@@ -84,30 +84,6 @@ const Editor = () => {
                   ],
                 },
               },
-            },
-          ],
-        },
-      },
-      experience: {
-        heading: { value: `Experience` },
-        repeater: {
-          sortingLabel: "jobTitle",
-          content: [
-            {
-              id: 1,
-              jobTitle: `Senior Software Engineer, Frontend`,
-              organization: `Taylor Corporation`,
-              startDate: `04/2023`,
-              endDate: `Present`,
-              description: `<p>Taylor Corporation is a graphical communications company with more than 10,000 employees headquartered in North Mankato, Minnesota</p>`,
-            },
-            {
-              id: 2,
-              jobTitle: `Senior Software Engineer, Frontend`,
-              organization: `Taylor Corporation`,
-              startDate: `04/2023`,
-              endDate: `Present`,
-              description: `<p>Taylor Corporation is a graphical communications company with more than 10,000 employees headquartered in North Mankato, Minnesota</p>`,
             },
           ],
         },
@@ -420,43 +396,73 @@ const Editor = () => {
   };
 
   const updateNestedField = (obj, path, value) => {
+    if (!path.length) return value;
+
     const [key, ...rest] = path;
 
+    // If obj is undefined/null (can happen when creating new entries), initialize it
     const isIndex = typeof key === "number";
+    const current = obj ?? (isIndex ? [] : {});
 
     if (rest.length === 0) {
       if (isIndex) {
-        const newArray = [...obj];
+        const newArray = Array.isArray(current) ? [...current] : [];
         newArray[key] = value;
         return newArray;
       } else {
         return {
-          ...obj,
+          ...current,
           [key]: value,
         };
       }
     }
 
     if (isIndex) {
-      const newArray = [...obj];
-      newArray[key] = updateNestedField(obj[key], rest, value);
+      const newArray = Array.isArray(current) ? [...current] : [];
+      newArray[key] = updateNestedField(current[key], rest, value);
       return newArray;
     } else {
       return {
-        ...obj,
-        [key]: updateNestedField(obj[key], rest, value),
+        ...current,
+        [key]: updateNestedField(current[key], rest, value),
       };
     }
   };
 
-  const handleRepeaterFieldChange = (pathArray, value) => {
+  const handleRepeaterFieldChange = (moduleIndex, pathArray, value) => {
     setResumeData((prev) => {
+      const modules = prev.content.canvas.repeater.modules;
+
+      const targetModule = modules[moduleIndex];
+
+      const targetContent = targetModule.content ?? {};
+      const targetRepeater = targetContent.repeater ?? { content: [] };
+
       const updatedContent = updateNestedField(
-        prev,
-        ["content", ...pathArray],
+        { ...targetContent, repeater: targetRepeater },
+        pathArray,
         value
       );
-      return updatedContent;
+
+      const updatedModules = [...modules];
+      updatedModules[moduleIndex] = {
+        ...targetModule,
+        content: updatedContent,
+      };
+
+      return {
+        ...prev,
+        content: {
+          ...prev.content,
+          canvas: {
+            ...prev.content.canvas,
+            repeater: {
+              ...prev.content.canvas.repeater,
+              modules: updatedModules,
+            },
+          },
+        },
+      };
     });
   };
 

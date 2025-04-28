@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import { MinimalTiptapEditor } from "@/components/ui//minimal-tiptap";
 import { Button } from "@/components/ui/shadcn/button";
 import { Calendar } from "@/components/ui/shadcn/calendar";
+import { Switch } from "@/components/ui//shadcn/switch";
 import {
   Popover,
   PopoverContent,
@@ -205,23 +206,52 @@ export const RichtextEditor = ({ value, setValue }) => {
 };
 
 export const DatePicker = ({ date, setDate }) => {
-  // const [date, setDate] = React.useState();
+  const [isPresent, setIsPresent] = useState(date === "present");
+
+  const handleTogglePresent = (checked) => {
+    setIsPresent(checked);
+    if (checked) {
+      setDate("present");
+    } else {
+      setDate(new Date()); // Optional: you could also set it to null
+    }
+  };
+
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button
           variant={"outline"}
           className={cn(
-            "w-[240px] justify-start text-left font-normal",
+            "w-[100%] justify-start text-left font-normal c__form__calendar-input h-[38px]",
             !date && "text-muted-foreground"
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "PPP") : <span>Pick a date</span>}
+          {isPresent ? (
+            "Present"
+          ) : date instanceof Date ? (
+            format(date, "PPP")
+          ) : (
+            <span>Pick a date</span>
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
-        <Calendar mode="single" selected={date} onSelect={setDate} autoFocus />
+        <Calendar
+          mode="single"
+          selected={typeof date === "string" ? undefined : date}
+          onSelect={setDate}
+          autoFocus
+        />
+        <div className="flex items-center gap-3 ps-[16px] pb-4 border-t pt-4">
+          <Switch
+            id="present-switch"
+            checked={isPresent}
+            onCheckedChange={handleTogglePresent}
+          />
+          <label htmlFor="present-switch">Present</label>
+        </div>
       </PopoverContent>
     </Popover>
   );
